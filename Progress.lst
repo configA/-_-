@@ -1,0 +1,134 @@
+C51 COMPILER V9.60.0.0   PROGRESS                                                          06/12/2022 21:53:21 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE PROGRESS
+OBJECT MODULE PLACED IN Progress.obj
+COMPILER INVOKED BY: F:\keil\C51\BIN\C51.EXE GUI\Progress.c LARGE OMF2 OPTIMIZE(8,SPEED) BROWSE INCDIR(.\模块.\User;.\Pu
+                    -blic;.\GUI;.\APP\tftlcd;.\APP\touch;.\模块) DEBUG PRINT(.\Progress.lst) TABS(2) OBJECT(Progress.obj)
+
+line level    source
+
+   1          #include "Progress.h"
+   2          extern unsigned int Start_Time;//起始时间
+   3          extern unsigned int count;//运行时间
+   4          extern unsigned char indicate;
+   5          struct Washing_time M_Time[4] = {//各个模式时间的结构体  0进水 1洗涤 2漂洗 3脱水
+   6          {15,15,15,10},      //强力模式
+   7          {10,10,10,8},
+   8          {5,5,5,3},
+   9          {0,0,0,0}};
+  10          
+  11          //进度条显示
+  12          //percent：进度，百分数
+  13          void ProgressBar_Show(u8 percent,u8 PROGRESSBAR_START_X,u8 PROGRESSBAR_START_Y)
+  14          {
+  15   1        //static u8 int_flag=0;
+  16   1        u8 temp[4];
+  17   1        u8 color_temp=0;
+  18   1        u8 font_size=12;
+  19   1        u8 progress;//进度条的实际长度
+  20   1        
+  21   1        progress = (percent*PROGRESSBAR_WIDTH)/100;
+  22   1        color_temp=BACK_COLOR;//背景色 
+  23   1        if(percent<10)
+  24   1        {
+  25   2          temp[0]=' ';
+  26   2          temp[1]=' ';
+  27   2          temp[2]=percent%100%10+0x30;//显示个位  
+  28   2        } 
+  29   1        else if(percent<100)
+  30   1        {
+  31   2          temp[0]=' ';
+  32   2          temp[1]=percent%100/10+0x30;
+  33   2          temp[2]=percent%100%10+0x30;//显示两位数
+  34   2        }
+  35   1        else
+  36   1        {
+  37   2          temp[0]=percent/100+0x30;
+  38   2          temp[1]=percent%100/10+0x30;
+  39   2          temp[2]=percent%100%10+0x30;//显示100 
+  40   2        }   
+  41   1        temp[3]='%';
+  42   1      //  if(int_flag==0) //只进行一次初始化
+  43   1      //  {
+  44   1      //    int_flag=1;
+  45   1      //    gui_fill_rectangle(PROGRESSBAR_START_X,PROGRESSBAR_START_Y,PROGRESSBAR_WIDTH,PROGRESSBAR_HEIGHT,PROGRE
+             -SSBAR_BACKCOLOR);//填充矩形   
+  46   1      //  }
+  47   1        gui_fill_rectangle(PROGRESSBAR_START_X,PROGRESSBAR_START_Y,progress,PROGRESSBAR_HEIGHT,PROGRESSBAR_FRONTC
+             -OLOR);
+  48   1        if(percent>(PROGRESSBAR_WIDTH/2))
+  49   1        {
+  50   2          gui_show_strmidex(PROGRESSBAR_START_X,PROGRESSBAR_START_Y,PROGRESSBAR_WIDTH,PROGRESSBAR_HEIGHT,PROGRESSB
+             -AR_FONTCOLOR,font_size,temp,1); 
+  51   2        }
+C51 COMPILER V9.60.0.0   PROGRESS                                                          06/12/2022 21:53:21 PAGE 2   
+
+  52   1        else
+  53   1        {
+  54   2          BACK_COLOR=PROGRESSBAR_BACKCOLOR;
+  55   2          gui_show_strmidex(PROGRESSBAR_START_X,PROGRESSBAR_START_Y,PROGRESSBAR_WIDTH,PROGRESSBAR_HEIGHT,PROGRESSB
+             -AR_FONTCOLOR,font_size,temp,0); 
+  56   2        } 
+  57   1        BACK_COLOR=color_temp;
+  58   1      }
+  59          
+  60          //进度条测试
+  61          void ProgressBar_Test(u8 PROGRESSBAR_START_X,u8 PROGRESSBAR_START_Y)
+  62          {
+  63   1        u8 i=0;
+  64   1      
+  65   1        //FRONT_COLOR=BROWN;
+  66   1        //LCD_ShowString(10,10,tftlcd_data.width,tftlcd_data.height,16,"ProgressBar Test");
+  67   1        
+  68   1        
+  69   1      //  while(1)
+  70   1      //  {
+  71   1          gui_fill_rectangle(PROGRESSBAR_START_X,PROGRESSBAR_START_Y,PROGRESSBAR_WIDTH,PROGRESSBAR_HEIGHT,PROGRESS
+             -BAR_BACKCOLOR);
+  72   1          for(i=1;i<=5;i++)
+  73   1          {
+  74   2            ProgressBar_Show(i,PROGRESSBAR_START_X,PROGRESSBAR_START_Y);
+  75   2            delay_ms(50); 
+  76   2          } 
+  77   1      //  } 
+  78   1        
+  79   1      } 
+  80          
+  81          //开始的时间  所需的时间  现在的时间 输出的数组
+  82          void Progress_Bar(u16 Start,u16 Time_Required,u16 Now_Time,u8 X,u8 Y)
+  83          {
+  84   1        u8 Percentage=0;//百分比
+  85   1        u16 time=0;
+  86   1        Percentage = ((float)(Now_Time - Start)/(Time_Required))*100;//计算百分比
+  87   1        //gui_fill_rectangle(PROGRESSBAR_START_X,PROGRESSBAR_START_Y,PROGRESSBAR_WIDTH,PROGRESSBAR_HEIGHT,PROGRES
+             -SBAR_BACKCOLOR);
+  88   1        printf("Now=%d Start=%d Req=%d %d\r\n",Now_Time,Start,Time_Required,(u16)Percentage);
+  89   1        ProgressBar_Show((u8)Percentage,X,Y);
+  90   1        if(Percentage >= 100)
+  91   1        {
+  92   2          Start_Time = count;//为下一个过程的起始时间做准备
+  93   2          if(++indicate == 6)  indicate = 0;
+  94   2        }
+  95   1      }
+  96          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    669    ----
+   CONSTANT SIZE    =     28    ----
+   XDATA SIZE       =     16      23
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+C51 COMPILER V9.60.0.0   PROGRESS                                                          06/12/2022 21:53:21 PAGE 3   
+
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

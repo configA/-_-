@@ -1,0 +1,156 @@
+C51 COMPILER V9.60.0.0   UI                                                                06/12/2022 21:53:22 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE UI
+OBJECT MODULE PLACED IN ui.obj
+COMPILER INVOKED BY: F:\keil\C51\BIN\C51.EXE GUI\ui.c LARGE OMF2 OPTIMIZE(8,SPEED) BROWSE INCDIR(.\模块.\User;.\Public;.
+                    -\GUI;.\APP\tftlcd;.\APP\touch;.\模块) DEBUG PRINT(.\ui.lst) TABS(2) OBJECT(ui.obj)
+
+line level    source
+
+   1          #include "ui.h"
+   2          
+   3          code struct STU const Coord[]={
+   4          {5,50,"Strong mode:55S"},
+   5          {5,70,"standards mode:38S"},
+   6          {5,90,"Quick mode:18S"},
+   7          {5,110,"Custom mode"},
+   8          
+   9          {5,150,"KEY1:UP"},
+  10          {5,170,"KEY5:DOWN"},
+  11          {5,190,"KEY6:CONFIRM"},
+  12          {5,210},
+  13          {5,230},
+  14          {5,250},
+  15          {5,270},
+  16          {5,300}};//初始化界面的坐标结构体
+  17          
+  18          code struct STU const Plan[]={//进度条界面函数结构体
+  19          {5,50,"Water Volume"},
+  20          {5,90,"Wash"},
+  21          {5,130,"Rinse"},
+  22          {5,170,"Dehydration"},
+  23          {5,210,"KEY6:Once more"}};
+  24          
+  25          code struct STU const Custom[]={//自定义界面结构体
+  26          {5,50,"Lnfluent Time: "},
+  27          {5,70,"Washing Time: "},
+  28          {5,90,"Rinse Time: "},
+  29          {5,110,"Dehydration Time: "},
+  30          
+  31          {5,150,"KEY1:UP"},
+  32          {5,170,"KEY5:DOWN"},
+  33          {5,190,"KEY2:ADD"},
+  34          {5,210,"KEY6:SUB "},
+  35          {5,230,"LONG KEY6:CONFIRM"},
+  36          {5,250},
+  37          {5,270},
+  38          {5,300}};//初始化界面的坐标结构体
+  39          
+  40          //初始化界面
+  41          void Mode_Selection()
+  42          {
+  43   1        u8 i = 0;
+  44   1        FRONT_COLOR=BROWN;
+  45   1        LCD_ShowString(25,10,tftlcd_data.width,tftlcd_data.height,16,"Washing machine system");
+  46   1        
+  47   1        FRONT_COLOR=BRRED;
+  48   1        LCD_ShowString(5,300,tftlcd_data.width,tftlcd_data.height,16,"Running time:");
+  49   1        
+  50   1        
+  51   1        FRONT_COLOR=RED;//第一行为红色
+  52   1        LCD_ShowString(Coord[0].x,Coord[0].y,tftlcd_data.width,tftlcd_data.height,16,Coord[0].str);//强力模式
+  53   1        FRONT_COLOR=WHITE;//默认后面为白色
+  54   1        
+C51 COMPILER V9.60.0.0   UI                                                                06/12/2022 21:53:22 PAGE 2   
+
+  55   1        for(i=1;i<8;i++)
+  56   1          LCD_ShowString(Coord[i].x,Coord[i].y,tftlcd_data.width,tftlcd_data.height,16,Coord[i].str);//标准模式
+  57   1      
+  58   1      }
+  59          
+  60          
+  61          //行号与上一次的行号 和当前的界面  从第0行开始
+  62          void Choice(u8 line,u8 line_old,u8 Interface)//选中时标红
+  63          { 
+  64   1        if(Interface)
+  65   1        {
+  66   2          FRONT_COLOR=WHITE;//白色
+  67   2          LCD_ShowString(Coord[line_old].x,Coord[line_old].y,tftlcd_data.width,tftlcd_data.height,16,Coord[line_ol
+             -d].str);
+  68   2          
+  69   2          FRONT_COLOR=RED;//红色
+  70   2          LCD_ShowString(Coord[line].x,Coord[line].y,tftlcd_data.width,tftlcd_data.height,16,Coord[line].str);
+  71   2        }else
+  72   1        {
+  73   2          FRONT_COLOR=WHITE;//白色
+  74   2          LCD_ShowString(Custom[line_old].x,Custom[line_old].y,tftlcd_data.width,tftlcd_data.height,16,Custom[line
+             -_old].str);
+  75   2        
+  76   2          FRONT_COLOR=RED;//红色
+  77   2          LCD_ShowString(Custom[line].x,Custom[line].y,tftlcd_data.width,tftlcd_data.height,16,Custom[line].str);
+  78   2        }
+  79   1      }
+  80          
+  81          
+  82          void Schedule()//进度表界面
+  83          {
+  84   1        u8 i = 0;
+  85   1        LCD_Clear(BACK_COLOR);//清屏为黑色
+  86   1        FRONT_COLOR=BROWN;
+  87   1        LCD_ShowString(50,10,tftlcd_data.width,tftlcd_data.height,16,"Washer Schedule");
+  88   1        
+  89   1        FRONT_COLOR=BRRED;
+  90   1        LCD_ShowString(5,300,tftlcd_data.width,tftlcd_data.height,16,"Running time:");
+  91   1        
+  92   1        FRONT_COLOR=WHITE;//默认后面为白色
+  93   1        for(i=0;i<4;i++)
+  94   1        {
+  95   2          LCD_ShowString(Plan[i].x,Plan[i].y,tftlcd_data.width,tftlcd_data.height,16,Plan[i].str);//进水
+  96   2          gui_fill_rectangle(10,(70+i*40),PROGRESSBAR_WIDTH,PROGRESSBAR_HEIGHT,PROGRESSBAR_BACKCOLOR);//创建进度条
+             -  70 110 150 190
+  97   2          ProgressBar_Show(0,10,(70+i*40));//初始化进度0
+  98   2        }
+  99   1      }
+ 100          
+ 101          
+ 102          void Custom_Time()//时间设置界面
+ 103          {
+ 104   1        u8 i = 0;
+ 105   1        LCD_Clear(BACK_COLOR);//清屏为黑色
+ 106   1        FRONT_COLOR=BROWN;
+ 107   1        LCD_ShowString(60,10,tftlcd_data.width,tftlcd_data.height,16,"Custom MODE");
+ 108   1        
+ 109   1        FRONT_COLOR=BRRED;
+ 110   1        LCD_ShowString(5,300,tftlcd_data.width,tftlcd_data.height,16,"Running time:");
+ 111   1        
+ 112   1        FRONT_COLOR=RED;//第一行为红色
+ 113   1        LCD_ShowString(Custom[0].x,Custom[0].y,tftlcd_data.width,tftlcd_data.height,16,Custom[0].str);//设置时间
+C51 COMPILER V9.60.0.0   UI                                                                06/12/2022 21:53:22 PAGE 3   
+
+ 114   1        FRONT_COLOR=WHITE;//默认后面为白色
+ 115   1        for(i=1;i<9;i++)
+ 116   1        {
+ 117   2          LCD_ShowString(Custom[i].x,Custom[i].y,tftlcd_data.width,tftlcd_data.height,16,Custom[i].str);//设置时间
+ 118   2        }
+ 119   1      }
+ 120          
+ 121          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1489    ----
+   CONSTANT SIZE    =    761    ----
+   XDATA SIZE       =   ----       5
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

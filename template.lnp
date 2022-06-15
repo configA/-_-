@@ -1,0 +1,13 @@
+"main.obj",
+"bsp_time.obj",
+"bsp_key.obj",
+"public.obj",
+"uart.obj",
+"tftlcd.obj",
+"touch.obj",
+"gui.obj",
+"Progress.obj",
+"ui.obj" 
+TO "template" 
+
+REMOVEUNUSED 
